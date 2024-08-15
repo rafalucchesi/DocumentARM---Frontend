@@ -321,12 +321,6 @@ export interface Instruction {
         example: string;
       };
     };
-    // conditional: string;
-    // opcode: string;
-    // S_flag: string;
-    // Rn: string;
-    // Rd: string;
-    // operand2: string;
   };
   condition_flags: {
     N: string;
@@ -334,8 +328,4 @@ export interface Instruction {
     C: string;
     V: string;
   };
-  // examples: {
-  //   description: string;
-  //   code: string;
-  // }[];
 }
