@@ -1,20 +1,16 @@
 import { instructionsList } from "@/fixtures/instructionsList";
-import { instructionsMock } from "@/fixtures/instructionsMock";
-import { Instruction } from "@/models/Instruction";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, useState } from "react";
 
 interface SimplfiedInstruction {
   name: string;
   mnemonic: string;
 }
 
-interface InstructionSearchProps {
-  onSearch: Dispatch<SetStateAction<Instruction | undefined>>;
-}
-
-const InstructionSearch = ({ onSearch }: InstructionSearchProps) => {
+const InstructionSearch = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<SimplfiedInstruction[]>([]);
+  const router = useRouter();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target?.value;
@@ -47,12 +43,7 @@ const InstructionSearch = ({ onSearch }: InstructionSearchProps) => {
     );
 
     if (selected) {
-      const completeInstruction = instructionsMock.find(
-        (instruction) => instruction.mnemonic === selected.mnemonic,
-      );
-      onSearch(completeInstruction);
-    } else {
-      onSearch(undefined);
+      router.push(`/instruction/${selected.mnemonic}`);
     }
   };
 

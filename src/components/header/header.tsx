@@ -9,7 +9,7 @@ const Header = () => {
           Home
         </Link>
         <Link href="/instructions" className="p-4">
-          Documentação
+          Instructions
         </Link>
       </section>
     </header>
