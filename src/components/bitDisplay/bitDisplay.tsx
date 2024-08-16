@@ -18,17 +18,20 @@ const COLORS = [
   "bg-blue-200",
   "bg-green-200",
   "bg-yellow-200",
-  "bg-red-200",
-  "bg-purple-200",
-  "bg-orange-200",
+  "bg-red-300",
+  "bg-purple-300",
+  "bg-orange-300",
   "bg-pink-200",
   "bg-teal-200",
+  "bg-indigo-200",
+  "bg-cyan-200",
+  "bg-lime-200",
+  "bg-amber-200",
 ];
 
 export const BitDisplay = ({ bitEncoding }: BitDisplayProps) => {
   const { full_encoding, fields } = bitEncoding;
 
-  // Função para obter um intervalo de bits (ex: "31-28" -> [31, 30, 29, 28])
   const getBitRange = (bitRange: string) => {
     if (bitRange.includes("-")) {
       const [start, end] = bitRange.split("-").map(Number);
@@ -39,12 +42,24 @@ export const BitDisplay = ({ bitEncoding }: BitDisplayProps) => {
     }
   };
 
-  // Montando o array de bits com suas respectivas cores e descrições
-  const memoryArray: { bit: string; color: string; description: string }[] = [];
+  // Inicializando o array de memória com '?' para todos os 32 bits
+  const memoryArray: { bit: string; color: string; description: string }[] =
+    Array(32).fill({
+      bit: "0",
+      color: "bg-gray-500",
+      description: "Undefined field",
+    });
 
-  Object.keys(fields).forEach((key, index) => {
+  // Ordenando os campos com base no primeiro bit do intervalo para garantir a ordem correta
+  const sortedFields = Object.keys(fields).sort((a, b) => {
+    const [aStart] = getBitRange(fields[a].bits);
+    const [bStart] = getBitRange(fields[b].bits);
+    return bStart - aStart;
+  });
+
+  sortedFields.forEach((key, index) => {
     const field = fields[key];
-    const color = COLORS[index % COLORS.length]; // Seleciona uma cor da paleta
+    const color = COLORS[index % COLORS.length];
 
     const bitRange = getBitRange(field.bits);
     bitRange.forEach((bitIndex) => {
@@ -52,32 +67,58 @@ export const BitDisplay = ({ bitEncoding }: BitDisplayProps) => {
         bit: "?",
         color,
         description: field.description,
-      }; // Placeholder para bit (substituir por valor real se disponível)
+      };
     });
 
-    // Caso tenha um valor definido no campo, preencher o array com esses bits
     if (field.value) {
-      const bits = field.value.split(""); // Exemplo: "0100"
+      const bits = field.value.split("");
       bitRange.forEach((bitIndex, i) => {
-        memoryArray[bitIndex].bit = bits[i] || "?";
+        memoryArray[bitIndex].bit = bits[i] || "0";
       });
     }
   });
 
+  // Processando full_encoding para detectar bits que não foram especificados nos fields
+  if (full_encoding) {
+    const encodingParts = full_encoding.split("|");
+    let bitPosition = 31;
+
+    encodingParts.forEach((part) => {
+      if (part.includes("0") || part.includes("1")) {
+        part.split("").forEach((bit) => {
+          if (memoryArray[bitPosition].description === "Undefined field") {
+            memoryArray[bitPosition] = {
+              bit,
+              color: "bg-gray-200", // Cor padrão para bits não especificados
+              description: "Default encoding bit",
+            };
+          }
+          bitPosition--;
+        });
+      } else {
+        bitPosition -= part.length;
+      }
+    });
+  }
+
   return (
-    <div className="flex flex-col items-center">
-      <div className="grid-cols-32 grid h-8 grid-flow-col border border-black">
+    <div className="mt-4 flex flex-col items-center gap-6">
+      <h2 className="text-xl font-semibold">Bit encoding</h2>
+      <div className="grid-cols-32 grid grid-flow-col border-black">
         {memoryArray.reverse().map((bitInfo, index) => (
-          <span
-            key={index}
-            className={`flex items-center justify-center border border-black text-sm text-black ${bitInfo.color}`}
-          >
-            {bitInfo.bit}
-          </span>
+          <div className="flex flex-col items-center">
+            <span
+              key={index}
+              className={`flex items-center justify-center border border-black p-3 text-sm text-black ${bitInfo.color}`}
+            >
+              {bitInfo.bit}
+            </span>
+            {31 - index}
+          </div>
         ))}
       </div>
       <div className="mt-4 grid grid-cols-1 gap-2">
-        {Object.keys(fields).map((key, index) => (
+        {sortedFields.map((key, index) => (
           <div
             key={index}
             className={`text-sm ${COLORS[index % COLORS.length]}`}
