@@ -1,6 +1,8 @@
 import { instructionsList } from "@/fixtures/instructionsList";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
+import SearchIcon from "../../../public/search.svg";
 
 interface SimplfiedInstruction {
   name: string;
@@ -65,7 +67,7 @@ const InstructionSearch = () => {
         </button>
       </div>
       {suggestions.length > 0 && (
-        <ul className="absolute left-[20%] top-full mt-1 max-h-40 w-[60%] overflow-y-auto rounded border border-gray-300 bg-white text-black">
+        <ul className="absolute left-[20%] top-full mt-1 max-h-96 w-[60%] overflow-y-scroll rounded border border-gray-300 bg-white text-black">
           {suggestions.map((suggestion, index) => (
             <li
               key={index}
