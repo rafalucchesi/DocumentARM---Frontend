@@ -17,9 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex h-screen flex-col text-black`}>
+      <body
+        className={`${inter.className} flex h-screen flex-col overflow-hidden text-black`}
+      >
         <Header />
-        <div className="flex h-full w-screen bg-[#404040] p-10 pt-0">
+        <div className="flex h-full w-screen overflow-scroll bg-[#404040] px-16 pt-0">
           {children}
         </div>
       </body>

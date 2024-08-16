@@ -1,46 +1,59 @@
+import { instructionsList } from "@/fixtures/instructionsList";
+import { instructionsMock } from "@/fixtures/instructionsMock";
 import { Instruction } from "@/models/Instruction";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
-interface InstructionSearchProps {
-  instructions: Instruction[];
-  onSearch: (instruction: Instruction | undefined) => void;
+interface SimplfiedInstruction {
+  name: string;
+  mnemonic: string;
 }
 
-const InstructionSearch = ({
-  instructions,
-  onSearch,
-}: InstructionSearchProps) => {
+interface InstructionSearchProps {
+  onSearch: Dispatch<SetStateAction<Instruction | undefined>>;
+}
+
+const InstructionSearch = ({ onSearch }: InstructionSearchProps) => {
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<Instruction[]>([]);
+  const [suggestions, setSuggestions] = useState<SimplfiedInstruction[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target?.value;
+    console.log("value", value);
     setQuery(value);
 
     if (value.length > 0) {
-      const filteredSuggestions = instructions.filter(
+      const filteredSuggestions = instructionsList.filter(
         (instruction) =>
           instruction.mnemonic.toLowerCase().includes(value.toLowerCase()) ||
           instruction.name.toLowerCase().includes(value.toLowerCase()),
       );
+      console.log("filteredSuggestions", filteredSuggestions);
       setSuggestions(filteredSuggestions);
     } else {
       setSuggestions([]);
     }
   };
 
-  const handleSuggestionClick = (suggestion: Instruction) => {
+  const handleSuggestionClick = (suggestion: SimplfiedInstruction) => {
     setQuery(suggestion.mnemonic);
     setSuggestions([]);
   };
 
   const handleSearchClick = () => {
-    const selected = instructions.find(
+    const selected = instructionsList.find(
       (instruction) =>
         instruction.mnemonic.toLowerCase() === query.toLowerCase() ||
         instruction.name.toLowerCase() === query.toLowerCase(),
     );
-    onSearch(selected);
+
+    if (selected) {
+      const completeInstruction = instructionsMock.find(
+        (instruction) => instruction.mnemonic === selected.mnemonic,
+      );
+      onSearch(completeInstruction);
+    } else {
+      onSearch(undefined);
+    }
   };
 
   return (
@@ -61,7 +74,7 @@ const InstructionSearch = ({
         </button>
       </div>
       {suggestions.length > 0 && (
-        <ul className="absolute top-full mt-1 max-h-40 w-[60%] overflow-y-auto rounded border border-gray-300 bg-white text-black">
+        <ul className="absolute left-[20%] top-full mt-1 max-h-40 w-[60%] overflow-y-auto rounded border border-gray-300 bg-white text-black">
           {suggestions.map((suggestion, index) => (
             <li
               key={index}

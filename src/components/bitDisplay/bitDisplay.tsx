@@ -1,6 +1,8 @@
 interface BitDisplayProps {
   bitEncoding: {
-    full_encoding: string;
+    full_encoding?: string;
+    full_encoding_immediate?: string;
+    full_encoding_register?: string;
     fields: {
       [key: string]: {
         description: string;
@@ -19,6 +21,8 @@ const COLORS = [
   "bg-red-200",
   "bg-purple-200",
   "bg-orange-200",
+  "bg-pink-200",
+  "bg-teal-200",
 ];
 
 export const BitDisplay = ({ bitEncoding }: BitDisplayProps) => {
@@ -26,8 +30,13 @@ export const BitDisplay = ({ bitEncoding }: BitDisplayProps) => {
 
   // Função para obter um intervalo de bits (ex: "31-28" -> [31, 30, 29, 28])
   const getBitRange = (bitRange: string) => {
-    const [start, end] = bitRange.split("-").map(Number);
-    return Array.from({ length: start - end + 1 }, (_, i) => start - i);
+    if (bitRange.includes("-")) {
+      const [start, end] = bitRange.split("-").map(Number);
+      return Array.from({ length: start - end + 1 }, (_, i) => start - i);
+    } else {
+      const bit = Number(bitRange);
+      return [bit];
+    }
   };
 
   // Montando o array de bits com suas respectivas cores e descrições
@@ -58,7 +67,7 @@ export const BitDisplay = ({ bitEncoding }: BitDisplayProps) => {
   return (
     <div className="flex flex-col items-center">
       <div className="grid-cols-32 grid h-8 grid-flow-col border border-black">
-        {memoryArray.map((bitInfo, index) => (
+        {memoryArray.reverse().map((bitInfo, index) => (
           <span
             key={index}
             className={`flex items-center justify-center border border-black text-sm text-black ${bitInfo.color}`}
